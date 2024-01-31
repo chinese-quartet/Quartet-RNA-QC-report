@@ -1,0 +1,22 @@
+batch,SNR,RC,total_score,MCC_of_refDEG,Quality
+P_BGI_L3_B1,23.4,0.947 ,4.7 ,0.730 ,High quality
+P_BGI_L6_B1,14.7,0.956 ,3.7 ,0.717 ,High quality
+P_ILM_L1_B1,21.4,0.957 ,4.5 ,0.725 ,High quality
+P_ILM_L2_B1,11.8,0.922 ,3.3 ,0.682 ,Low quality
+P_ILM_L5_B1,13.7,0.861 ,3.4 ,0.607 ,Low quality
+P_ILM_L6_B1,11.3,0.923 ,3.2 ,0.656 ,Low quality
+P_ILM_L8_B1,26.6,0.959 ,5.1 ,0.728 ,High quality
+R_BGI_L3_B1,31.2,0.965 ,5.5 ,0.722 ,High quality
+R_BGI_L6_B1,21.9,0.963 ,4.6 ,0.721 ,High quality
+R_BGI_L7_B1,10.2,0.907 ,3.0 ,0.605 ,Low quality
+R_ILM_L1_B1,24.2,0.957 ,4.8 ,0.702 ,High quality
+R_ILM_L2_B1,9,0.849 ,2.8 ,0.540 ,Low quality
+R_ILM_L2_B2,26.4,0.963 ,5.0 ,0.717 ,High quality
+R_ILM_L4_B1,8.8,0.875 ,2.8 ,0.549 ,Low quality
+R_ILM_L4_B2,23.9,0.958 ,4.8 ,0.710 ,High quality
+R_ILM_L4_B3,26.1,0.955 ,5.0 ,0.710 ,High quality
+R_ILM_L5_B1,14.6,0.921 ,3.7 ,0.651 ,High quality
+R_ILM_L5_B2,26.6,0.897 ,4.9 ,0.618 ,Low quality
+R_ILM_L5_B3,16.1,0.784 ,3.6 ,0.480 ,Low quality
+R_ILM_L6_B1,20.1,0.938 ,4.3 ,0.671 ,High quality
+R_ILM_L8_B1,27.6,0.951 ,5.1 ,0.676 ,High quality
