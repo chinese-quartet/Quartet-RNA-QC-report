@@ -13,6 +13,8 @@ devtools::install_github("markx945/exp2qcdt", subdir = "exp2qcdt")
 ```R
 library(exp2qcdt)
 
+## please prepare your input file in the following format. (Make sure the column names are same with the examples)
+
 RNA_sample_fpkm <- system.file("extdata","fpkm.csv",package = "exp2qcdt")
 RNA_sample_count <- system.file("extdata","count.csv",package = "exp2qcdt")
 RNA_sample_metadata <- system.file("extdata","metadata.csv",package = "exp2qcdt")
