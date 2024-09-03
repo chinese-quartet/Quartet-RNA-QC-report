@@ -5,7 +5,9 @@ Convert expression table to qc data table for quartet project.
 ## Installation
 
 ```R
-devtools::install_github("markx945/exp2qcdt", subdir = "exp2qcdt")
+## If you do not have devtools, please install first
+library(devtools)
+devtools::install_github("chinese-quartet/Quartet-RNA-QC-report", subdir = "exp2qcdt")
 ```
 
 ## Usage
@@ -21,10 +23,10 @@ RNA_sample_metadata <- system.file("extdata","metadata.csv",package = "exp2qcdt"
 
 # RNA_result = exp2qcdt("~/Downloads/exp2qcdt/test/fpkm_table.txt", "~/Downloads/exp2qcdt/test/counts_table.txt", "~/Downloads/exp2qcdt/test/phenotype.txt", "~/Downloads/exp2qcdt/test/")
 RNA_result <- exp2qcdt(exp_table_file = RNA_sample_fpkm,count_table_file = RNA_sample_count,phenotype_file = RNA_sample_metadata,result_dir = "./RNA_output/")
-## 获取QC报告模板路径
+## get QC report template file path 
 RNA_doc_temp <- system.file("extdata","Quartet_temp.docx",package = "exp2qcdt")
 
-## 生成QC报告
+##  generate QC report
 GenerateRNAReport(RNA_result = RNA_result,doc_file_path = RNA_doc_temp,output_path = "./RNA_output/")
 ```
 
