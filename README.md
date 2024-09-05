@@ -30,7 +30,7 @@ RNA_doc_temp <- system.file("extdata","Quartet_temp.docx",package = "exp2qcdt")
 GenerateRNAReport(RNA_result = RNA_result,doc_file_path = RNA_doc_temp,output_path = "./RNA_output/")
 ```
 
-## phenotype table example
+## metadata table example
 
 | library                                         | group | sample |
 | :---------------------------------------------- | ----- | ------ |
@@ -47,7 +47,7 @@ GenerateRNAReport(RNA_result = RNA_result,doc_file_path = RNA_doc_temp,output_pa
 | Quartet_RNA_BGI_BGI2000_PolyA_BGI_M8_2_20200618 | M8_2  | M8     |
 | Quartet_RNA_BGI_BGI2000_PolyA_BGI_M8_3_20200618 | M8_3  | M8     |
 
-The fpkm and counts library IDs need to be identical to phenotype
+The fpkm and counts library IDs need to be identical to metadata
 
 ## reference data
 
