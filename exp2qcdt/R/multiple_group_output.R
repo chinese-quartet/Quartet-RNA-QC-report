@@ -30,6 +30,24 @@
 
 make_performance_plot <- function(dt_fpkm, dt_fpkm_log, dt_counts, dt_meta, result_dir, 
                                   abs_cor_median, pt_abs_median_cor) {
+  # ----------------------------------------------------------------------
+  # 1. 定义颜色映射 (Color Palette) - 确保颜色固定
+  # ----------------------------------------------------------------------
+  # D5: Blue (#4CC3D9), D6: Green (#7BC8A4), F7: Yellow (#FFC65D), M8: Red (#F16745)
+  color_palette <- c(
+    "D5" = "#4CC3D9", 
+    "D6" = "#7BC8A4", 
+    "F7" = "#FFC65D", 
+    "M8" = "#F16745"
+  )
+  
+  # SNR 图中点的边框颜色 (D5 原代码使用了深蓝色 #2f5c85，保留此设计)
+  snr_outline_palette <- c(
+    "D5" = "#2f5c85", 
+    "D6" = "#7BC8A4", 
+    "F7" = "#FFC65D", 
+    "M8" = "#F16745"
+  )
   
   # import reference data
   dt_ref_qc_metrics_value <- ref_data$ref_qc_metrics_value
@@ -38,12 +56,26 @@ make_performance_plot <- function(dt_fpkm, dt_fpkm_log, dt_counts, dt_meta, resu
   # two group which two replicates are need 
   sample_type_list <- dt_meta[['sample']] %>% unique()
   
-  ### D5/D6, F7/D6, M8/D6 log2FC correlation with reference data (dt_ref_fc_value)  ------------------ 
-  compare_combn <- data.table(combn(sample_type_list, 2))
+  # 1. 检查 'D6' 样本是否存在，因为它是 RC 计算的公共对照
+  if (!('D6' %in% sample_type_list)) {
+    stop("错误: 'D6' 样本必须存在于 metadata 的 'sample' 列中才能计算相对相关性 (RC)。")
+  }
+  
+  # 2. 动态创建比较列表：将所有其他样本与 'D6' 比较
+  #    获取除 'D6' 之外的所有样本
+  other_samples <- sample_type_list[sample_type_list != 'D6']
+  
+  #    创建配对列表，例如 list(c('D5', 'D6'), c('F7', 'D6'))
+  dynamic_compare_list <- lapply(other_samples, function(s) c(s, 'D6'))
+  
+  # 3. 使用动态列表替换硬编码的列表
+  #    原始行: dt_fc_test <- do.call(rbind, lapply(list(c('D5', 'D6'), c('F7', 'D6'), c('M8', 'D6')), function(x){
   
   # test data logfc 
-  dt_fc_test <- do.call(rbind, lapply(list(c('D5', 'D6'), c('F7', 'D6'), c('M8', 'D6')), function(x){
+  dt_fc_test <- do.call(rbind, lapply(dynamic_compare_list, function(x){
     compare_name <- paste(x[1], '/', x[2], sep = '')
+    
+    # --- [!! 修改结束 !!] ---
     
     ### at least tow replicate counts >= 3 
     dt_detect_gene <-  data.table(apply(dt_counts[, dt_meta[x[1], on = .(sample)][['library']], with = F], 1, function(x){length(which(x >= 3)) >= 2}),
@@ -79,18 +111,46 @@ make_performance_plot <- function(dt_fpkm, dt_fpkm_log, dt_counts, dt_meta, resu
   dt_ref_fc_test_d[, cor := cor_log2fc][, gene_num := dim(dt_ref_fc_test_d)[1]]
   fwrite(dt_ref_fc_test_d, file = paste(result_dir, "/performance_assessment/logfc_cor_ref_test.txt", sep = ""), sep = "\t")
   
+  
+  unique_comps <- unique(dt_ref_fc_test_d$compare)
+  
+  # 生成每个比较组的颜色映射
+  pair_colors <- sapply(unique_comps, function(comp_name) {
+    # 假设格式总是 "Sample1/Sample2"，取第一个
+    numerator_sample <- strsplit(comp_name, "/")[[1]][1]
+    if (numerator_sample %in% names(color_palette)) {
+      return(color_palette[[numerator_sample]])
+    } else {
+      return("gray") # 默认颜色，以防万一
+    }
+  })
+  
   # log2fc correlation output figure
   pt_logfc_cor <- ggplot2::ggplot(dt_ref_fc_test_d, aes(x = meanlogFC_ref, y = meanlogFC_test, color = compare)) +
     geom_point(alpha = 0.8, size = 0.3) +
     theme_few() + 
     theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) +
     scale_fill_viridis_c(name = "density") +
-    scale_color_manual(values = c("#4CC3D9","#FFC65D","#F16745"),name="Sample Pair") + 
+    # 修改: 使用动态生成的颜色映射
+    scale_color_manual(values = pair_colors, name="Sample Pair") + 
     labs(
       # title = 'LogFC Correlation',
-         subtitle = paste('Correlation: ', cor_log2fc, ' (N = ', dim(dt_ref_fc_test_d)[1], ')', sep = ''),
-         x = 'Reference Datasets',
-         y = 'Queried Data')
+      subtitle = paste('Correlation: ', cor_log2fc, ' (N = ', dim(dt_ref_fc_test_d)[1], ')', sep = ''),
+      x = 'Reference Datasets',
+      y = 'Queried Data')
+  
+  # # log2fc correlation output figure
+  # pt_logfc_cor <- ggplot2::ggplot(dt_ref_fc_test_d, aes(x = meanlogFC_ref, y = meanlogFC_test, color = compare)) +
+  #   geom_point(alpha = 0.8, size = 0.3) +
+  #   theme_few() + 
+  #   theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) +
+  #   scale_fill_viridis_c(name = "density") +
+  #   scale_color_manual(values = c("#4CC3D9","#FFC65D","#F16745"),name="Sample Pair") + 
+  #   labs(
+  #     # title = 'LogFC Correlation',
+  #        subtitle = paste('Correlation: ', cor_log2fc, ' (N = ', dim(dt_ref_fc_test_d)[1], ')', sep = ''),
+  #        x = 'Reference Datasets',
+  #        y = 'Queried Data')
   
   ### SNR performance -----------------------------------------
   ## obtain SNR results
@@ -113,18 +173,32 @@ make_performance_plot <- function(dt_fpkm, dt_fpkm_log, dt_counts, dt_meta, resu
   dt_snr <- output_snr_res(dt_fpkm_log, dt_counts, dt_meta)
   snr_gene_num <- dt_snr$gene_num[1]
   
-  ## figure of pca with snr
+  # 修改: 使用预定义的命名向量 snr_outline_palette 和 color_palette
   pt_snr <- ggplot(dt_snr, aes(x = PC1, y = PC2)) +
     geom_point(aes(color = sample), size = 2.5, show.legend = FALSE) +
     theme_few() +
     guides(shape = guide_legend(ncol = 1), color = guide_legend(ncol = 1, title.position = "top")) +
-    scale_fill_manual(values = c("#4CC3D9", "#7BC8A4", "#FFC65D", "#F16745")) +
-    scale_color_manual(values = c("#2f5c85", "#7BC8A4", "#FFC65D", "#F16745")) +
+    # 修改: 确保 D5/D6/F7/M8 颜色永远对应正确，不受缺失样本影响
+    scale_fill_manual(values = color_palette) +
+    scale_color_manual(values = snr_outline_palette) +
     theme(plot.title = element_text(hjust = 0.5)) +
     labs(
       title = paste("SNR: ", dt_snr$SNR[1], ' (N = ', dt_snr$gene_num[1], ')', sep = ""),
       x = paste("PC1 (", dt_snr$PC1_ratio, "%)", sep = ""),
       y = paste("PC1 (", dt_snr$PC2_ratio, "%)", sep = ""))
+  
+  # ## figure of pca with snr
+  # pt_snr <- ggplot(dt_snr, aes(x = PC1, y = PC2)) +
+  #   geom_point(aes(color = sample), size = 2.5, show.legend = FALSE) +
+  #   theme_few() +
+  #   guides(shape = guide_legend(ncol = 1), color = guide_legend(ncol = 1, title.position = "top")) +
+  #   scale_fill_manual(values = c("#4CC3D9", "#7BC8A4", "#FFC65D", "#F16745")) +
+  #   scale_color_manual(values = c("#2f5c85", "#7BC8A4", "#FFC65D", "#F16745")) +
+  #   theme(plot.title = element_text(hjust = 0.5)) +
+  #   labs(
+  #     title = paste("SNR: ", dt_snr$SNR[1], ' (N = ', dt_snr$gene_num[1], ')', sep = ""),
+  #     x = paste("PC1 (", dt_snr$PC1_ratio, "%)", sep = ""),
+  #     y = paste("PC1 (", dt_snr$PC2_ratio, "%)", sep = ""))
   
   ## output snr table
   dt_snr$PC1 <- round(dt_snr$PC1 , digits = 3)

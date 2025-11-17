@@ -1,0 +1,4 @@
+qc_metrics	value	historical_value	rank
+Signal-to-Noise Ratio (SNR)	15.613	19.505 ± 7.039	14/22
+Relative Correlation with Reference Datasets (RC) 	0.583	0.924 ± 0.048	22/22
+Total Score	3.017	5.603 ± 2.884	19/22
