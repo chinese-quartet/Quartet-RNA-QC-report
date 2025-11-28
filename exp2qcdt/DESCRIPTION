@@ -1,14 +1,10 @@
 Package: exp2qcdt
-Type: Package
 Title: Convert expression table to qc datatable for quartet project
 Version: 0.2.5
-Date: 2025-11-17
-Author: Jun Shang, Jingcheng Yang, Yanming Xie
-Maintainer: Jun Shang <shangjunv@163.com>
-Description: More about what it does (maybe more than one line)
-License: GPL-2 | file LICENSE
-Depends:
-  R (>= 3.2)
+Authors@R: c(
+    person("Jun", "Shang", email = "shangjunv@163.com", role = c("aut", "cre")),
+    person("Jingcheng", "Yang", email = "jingcheng.yang@fudan.edu.cn", role = "aut"),
+    person("Yanming", "Xie", email = "yanming.xie@fudan.edu.cn", role = "aut"))
 Imports: 
   data.table (>= 1.13.6),
   cowplot (>= 1.1.1),
@@ -24,5 +20,9 @@ Imports:
   flextable,
   officer,
   scales
-RoxygenNote: 7.2.3
+Description: More about what it does (maybe more than one line)
+URL: https://github.com/chinese-quartet/Quartet-RNA-QC-report
+BugReports: https://github.com/chinese-quartet/Quartet-RNA-QC-report/issues
+License: `use_mit_license()`
+RoxygenNote: 7.3.3
 Encoding: UTF-8
