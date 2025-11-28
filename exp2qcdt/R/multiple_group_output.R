@@ -193,7 +193,7 @@ make_performance_plot <- function(dt_fpkm, dt_fpkm_log, dt_counts, dt_meta, resu
 
   # 修改: 使用预定义的命名向量 snr_outline_palette 和 color_palette
   pt_snr <- ggplot(dt_snr, aes(x = PC1, y = PC2)) +
-    geom_point(aes(color = sample), size = 2.5, show.legend = FALSE) +
+    geom_point(aes(color = sample), size = 2.5) +
     theme_few() +
     guides(shape = guide_legend(ncol = 1), color = guide_legend(ncol = 1, title.position = "top")) +
     # 修改: 确保 D5/D6/F7/M8 颜色永远对应正确，不受缺失样本影响
