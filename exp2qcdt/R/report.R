@@ -8,8 +8,6 @@
 #' @param report_dir character
 #' @param report_name character
 #'
-#' @return word file
-#'
 #' @importFrom dplyr %>%
 #' @importFrom flextable flextable
 #' @importFrom flextable theme_vanilla
@@ -37,6 +35,17 @@
 #' @importFrom officer fpar
 #' @importFrom officer ftext
 #' @importFrom officer body_add_fpar
+#'
+#' @examples
+#' # 加载示例 RNA_qc_result 对象
+#' rna_qc_result <- system.file("extdata", "rna_qc_result_example.RData", package = "exp2qcdt")
+#' load(rna_qc_result)
+#'
+#' # 指定包内文档的路径
+#' report_template <- system.file("extdata", "quartet_template.docx", package = "exp2qcdt")
+#'
+#' # 运行函数
+#' generate_rna_report(qc_result = RNA_result, report_template = report_template)
 #'
 #' @export
 generate_rna_report <- function(qc_result,
