@@ -23,6 +23,6 @@ Imports:
 Description: More about what it does (maybe more than one line)
 URL: https://github.com/chinese-quartet/Quartet-RNA-QC-report
 BugReports: https://github.com/chinese-quartet/Quartet-RNA-QC-report/issues
-License: `use_mit_license()`
+License: GPL (>= 2)
 RoxygenNote: 7.3.3
 Encoding: UTF-8
