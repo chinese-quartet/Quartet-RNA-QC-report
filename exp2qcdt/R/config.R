@@ -1,21 +1,14 @@
 #' Read reference data
 #'
-#' @param ref_data_dir A root directory for reference data
 #' @return The reference data as a list.
 #' @importFrom data.table fread
-#' @export 
-read_ref_data <- function(ref_data_dir) {
-  # Read reference data
-  #
-  # Args:
-  #   None
-  #
-  # Returns:
-  #   ref_data
+#' @export
+read_ref_data <- function() {
   ref_data <- list()
-  ref_data$ref_qc_metrics_value <- fread(paste0(ref_data_dir, "/ref_data_qc_value.csv"))
-  ref_data$ref_fc_value <- fread(paste0(ref_data_dir, "/ref_data_fc_value.csv"))
-  
+  ref_qc_file <- system.file("extdata", "ref_data_qc_value.csv", package = "exp2qcdt")
+  ref_fc_file <- system.file("extdata", "ref_data_fc_value.csv", package = "exp2qcdt")
+  ref_data$ref_qc_metrics_value <- fread(ref_qc_file)
+  ref_data$ref_fc_value <- fread(ref_fc_file)
   return(ref_data)
 }
 
@@ -34,23 +27,22 @@ read_ref_data <- function(ref_data_dir) {
 #' @importFrom limma topTable
 #' @importFrom data.table as.data.table
 #' @export
-
-DEGanalysis <- function(exprMat, group){
-  dge <- DGEList(counts = exprMat)
+dge_analysis <- function(expr_mat, group) {
+  dge <- DGEList(counts = expr_mat)
   design <- model.matrix(~group)
-  
-  keep <- filterByExpr(dge, design, design,min.count = 0)
-  dge <- dge[keep,,keep.lib.sizes=FALSE]
+
+  keep <- filterByExpr(dge, design, design, min.count = 0)
+  dge <- dge[keep, , keep.lib.sizes = FALSE]
   dge <- calcNormFactors(dge)
-  
-  v <- voom(dge, design, plot=F)
+
+  v <- voom(dge, design, plot = F)
   fit <- lmFit(v, design)
-  
+
   fit <- eBayes(fit)
-  result <- topTable(fit, coef=ncol(design), sort.by = 'logFC', number = Inf)
-  result$gene = rownames(result)
-  result$groupA =  levels(group)[1]
-  result$groupB =  levels(group)[2]
+  result <- topTable(fit, coef = ncol(design), sort.by = "logFC", number = Inf)
+  result$gene <- rownames(result)
+  result$groupA <- levels(group)[1]
+  result$groupB <- levels(group)[2]
   return(as.data.table(result))
 }
 
@@ -62,17 +54,18 @@ DEGanalysis <- function(exprMat, group){
 #' @importFrom ggplot2 element_rect
 #' @importFrom ggplot2 element_blank
 #' @export
-#' 
 make_theme <- function() {
-  custom_theme <- theme(plot.background = element_rect(colour = "white"),
-                        axis.title.y = element_text(size = 16),
-                        axis.title.x = element_text(size = 16),
-                        axis.text.y = element_text(colour = "black", size = 16),
-                        axis.text.x = element_text(colour = "black", size = 16),
-                        title = element_text(colour = "black", size = 16),
-                        panel.background = element_rect(fill = "white"),
-                        panel.grid = element_blank(),
-                        strip.text = element_text(size = 16))
+  custom_theme <- theme(
+    plot.background = element_rect(colour = "white"),
+    axis.title.y = element_text(size = 16),
+    axis.title.x = element_text(size = 16),
+    axis.text.y = element_text(colour = "black", size = 16),
+    axis.text.x = element_text(colour = "black", size = 16),
+    title = element_text(colour = "black", size = 16),
+    panel.background = element_rect(fill = "white"),
+    panel.grid = element_blank(),
+    strip.text = element_text(size = 16)
+  )
   return(custom_theme)
 }
 
@@ -83,28 +76,29 @@ make_theme <- function() {
 #' @importFrom ggthemes theme_few
 #' @importFrom cowplot insert_xaxis_grob
 #' @export
-
-plot_scatter_box <- function(dt_sb, var_x, var_y, col_g, xlab, ylab, title_lab){
-  colors_fill = c(Reference= "#2f5c85", QC = "#7ba1c7", Query = "red")
+plot_scatter_box <- function(dt_sb, var_x, var_y, col_g, xlab, ylab, title_lab) {
+  colors_fill <- c(Reference = "#2f5c85", QC = "#7ba1c7", Query = "red")
   pmain <- ggplot(dt_sb, aes_string(x = var_x, y = var_y, color = col_g)) +
     geom_point() +
     scale_color_manual(values = colors_fill) +
     theme_few() +
-    theme(legend.position = "none",
-          plot.title = element_text(hjust = 0.5)) +
+    theme(
+      legend.position = "none",
+      plot.title = element_text(hjust = 0.5)
+    ) +
     labs(title = title_lab, x = xlab, y = ylab)
-  
-  xplot <- ggplot(dt_sb, aes_string(x = col_g, y = var_x, colour = col_g)) + 
+
+  xplot <- ggplot(dt_sb, aes_string(x = col_g, y = var_x, colour = col_g)) +
     geom_boxplot() +
     scale_color_manual(values = colors_fill) +
     coord_flip() +
     theme_classic()
-  
-  yplot <- ggplot(dt_sb, aes_string(x = col_g, y = var_y, colour = col_g)) + 
+
+  yplot <- ggplot(dt_sb, aes_string(x = col_g, y = var_y, colour = col_g)) +
     geom_boxplot() +
     scale_color_manual(values = colors_fill) +
     theme_classic()
-  
+
   p1 <- insert_xaxis_grob(pmain, xplot, grid::unit(.2, "null"), position = "top")
   p2 <- insert_yaxis_grob(p1, yplot, grid::unit(.2, "null"), position = "right")
   pt_sb <- ggdraw(p2)
@@ -118,26 +112,30 @@ plot_scatter_box <- function(dt_sb, var_x, var_y, col_g, xlab, ylab, title_lab){
 #' @export
 #'
 calc_signoise_ratio <- function(pca_prcomp, exp_design) {
-  
   pcs <- as.data.frame(predict(pca_prcomp))
-  dt_perc_pcs <- data.table(PCX = 1:nrow(pcs),
-                            Percent = summary(pca_prcomp)$importance[2,],
-                            AccumPercent = summary(pca_prcomp)$importance[3,])
-  
-  dt_dist <- data.table(ID.A = rep(rownames(pcs), each = nrow(pcs)),
-                        ID.B = rep(rownames(pcs), time = nrow(pcs)))
-  
+  dt_perc_pcs <- data.table(
+    PCX = 1:nrow(pcs),
+    Percent = summary(pca_prcomp)$importance[2, ],
+    AccumPercent = summary(pca_prcomp)$importance[3, ]
+  )
+
+  dt_dist <- data.table(
+    ID.A = rep(rownames(pcs), each = nrow(pcs)),
+    ID.B = rep(rownames(pcs), time = nrow(pcs))
+  )
+
   dt_dist$Group.A <- exp_design[dt_dist$ID.A]$group
   dt_dist$Group.B <- exp_design[dt_dist$ID.B]$group
-  
+
   dt_dist[, Type := ifelse(ID.A == ID.B, "Same",
-                           ifelse(Group.A == Group.B, "Intra", "Inter"))]
-  dt_dist[, Dist := dt_perc_pcs[1]$Percent * (pcs[ID.A, 1] - pcs[ID.B, 1]) ^ 2 + dt_perc_pcs[2]$Percent * (pcs[ID.A, 2] - pcs[ID.B, 2]) ^ 2]
-  
+    ifelse(Group.A == Group.B, "Intra", "Inter")
+  )]
+  dt_dist[, Dist := dt_perc_pcs[1]$Percent * (pcs[ID.A, 1] - pcs[ID.B, 1])^2 + dt_perc_pcs[2]$Percent * (pcs[ID.A, 2] - pcs[ID.B, 2])^2]
+
   dt_dist_stats <- dt_dist[, .(Avg.Dist = mean(Dist)), by = .(Type)]
   setkey(dt_dist_stats, Type)
   signoise <- dt_dist_stats["Inter"]$Avg.Dist / dt_dist_stats["Intra"]$Avg.Dist
-  signoise_db <- 10*log10(signoise)
+  signoise_db <- 10 * log10(signoise)
   return(signoise_db)
 }
 
@@ -146,16 +144,16 @@ calc_signoise_ratio <- function(pca_prcomp, exp_design) {
 #' @importFrom stats prcomp
 #' @export
 get_pca_list <- function(expr_mat_forsignoise, exp_design, dt_meta) {
-  pca_prcomp = prcomp(t(expr_mat_forsignoise), scale = F)
-  pcs = predict(pca_prcomp) %>% data.frame()
-  pcs$library = row.names(pcs)
-  pcs_add_meta = merge(pcs, dt_meta, by = "library")
-  PC1_ratio = round(summary(pca_prcomp)$importance[2, 1] * 100, digits = 2)
-  PC2_ratio = round(summary(pca_prcomp)$importance[2, 2] * 100, digits = 2)
-  PC3_ratio = round(summary(pca_prcomp)$importance[2, 3] * 100, digits = 2)
-  SNR = format(round(calc_signoise_ratio(pca_prcomp, exp_design = exp_design), digits = 3), nsmall = 3) 
-  gene_num = dim(expr_mat_forsignoise)[1]
-  pca_list = cbind(pcs_add_meta, PC1_ratio, PC2_ratio, PC3_ratio, SNR, gene_num)
+  pca_prcomp <- prcomp(t(expr_mat_forsignoise), scale = F)
+  pcs <- predict(pca_prcomp) %>% data.frame()
+  pcs$library <- row.names(pcs)
+  pcs_add_meta <- merge(pcs, dt_meta, by = "library")
+  PC1_ratio <- round(summary(pca_prcomp)$importance[2, 1] * 100, digits = 2)
+  PC2_ratio <- round(summary(pca_prcomp)$importance[2, 2] * 100, digits = 2)
+  PC3_ratio <- round(summary(pca_prcomp)$importance[2, 3] * 100, digits = 2)
+  SNR <- format(round(calc_signoise_ratio(pca_prcomp, exp_design = exp_design), digits = 3), nsmall = 3)
+  gene_num <- dim(expr_mat_forsignoise)[1]
+  pca_list <- cbind(pcs_add_meta, PC1_ratio, PC2_ratio, PC3_ratio, SNR, gene_num)
   return(pca_list)
 }
 
@@ -180,25 +178,28 @@ get_pca_list <- function(expr_mat_forsignoise, exp_design, dt_meta) {
 #' @importFrom grDevices pdf
 #' @importFrom grid unit
 #' @export
-
 make_score_figure <- function(result_dir, dt_hq_score_scale) {
   # dt_hq_score_scale shold contain batch colname and quality score
-  dt_hq_score_scale_order <- dt_hq_score_scale[order(dt_hq_score_scale$total_score, decreasing = TRUE),]
+  dt_hq_score_scale_order <- dt_hq_score_scale[order(dt_hq_score_scale$total_score, decreasing = TRUE), ]
   dt_pscore <- data.table(cbind("score", dt_hq_score_scale_order[, .(total_score, batch)]))
   setnames(dt_pscore, "V1", "type")
   dt_pscore$total_score <- as.character(round(dt_pscore$total_score, digits = 2))
   test_score <- dt_pscore[.("QC_test"), on = .(batch)][["total_score"]]
-  
+
   # plot
   pdf(paste(result_dir, "/performance_assessment/performance_score.pdf", sep = ""), 4, 4)
   pt <- ggplot(dt_pscore, aes(x = total_score, y = type, fill = total_score)) +
     geom_tile(color = "white", show.legend = FALSE) +
     scale_fill_manual(values = colorRampPalette(brewer.pal(9, "RdYlGn"))(21)) +
-    annotate(geom = "curve", x = test_score,
-             y = 2.5, xend = test_score, curvature = 0,
-             yend = 1.5, arrow = arrow(angle = 45, length = unit(9, "mm"), type = "closed"), color = "grey") +
-    annotate(geom = "text", x = dt_pscore[.("QC_test"), on = .(batch)][["total_score"]],
-             y = 2.2, label = test_score, hjust = "center", size = 10, fontface = "bold") +
+    annotate(
+      geom = "curve", x = test_score,
+      y = 2.5, xend = test_score, curvature = 0,
+      yend = 1.5, arrow = arrow(angle = 45, length = unit(9, "mm"), type = "closed"), color = "grey"
+    ) +
+    annotate(
+      geom = "text", x = dt_pscore[.("QC_test"), on = .(batch)][["total_score"]],
+      y = 2.2, label = test_score, hjust = "center", size = 10, fontface = "bold"
+    ) +
     theme_void() +
     theme(plot.margin = margin(3, 0, 4, 0, "cm"))
   print(pt)

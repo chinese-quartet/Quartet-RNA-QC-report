@@ -11,7 +11,8 @@ make_performance_plot(
   dt_meta,
   result_dir,
   abs_cor_median,
-  pt_abs_median_cor
+  pt_abs_median_cor,
+  ref_data
 )
 }
 \description{

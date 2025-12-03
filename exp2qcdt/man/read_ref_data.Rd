@@ -4,10 +4,7 @@
 \alias{read_ref_data}
 \title{Read reference data}
 \usage{
-read_ref_data(ref_data_dir)
-}
-\arguments{
-\item{ref_data_dir}{A root directory for reference data}
+read_ref_data()
 }
 \value{
 The reference data as a list.
