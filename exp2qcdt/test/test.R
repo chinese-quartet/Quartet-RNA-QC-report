@@ -12,7 +12,9 @@ test_exp_file  <- "./test/3_sample_fpkm.csv"
 test_count_file <- "./test/3_sample_count.csv"
 
 # 2. 定义模板和输出路径
-doc_template_path <- system.file("extdata", "Quartet_temp.docx", package = "exp2qcdt")
+# doc_template_path <- system.file("extdata", "Quartet_temp.docx", package = "exp2qcdt")
+doc_template_path <- './Quartet-RNA-Report_v0.1.docx'
+
 test_output_dir <- file.path(getwd(), "TEST_OUTPUTS")
 dir.create(test_output_dir, showWarnings = FALSE)
 
@@ -25,15 +27,18 @@ rna_result <- exp2qcdt(
   result_dir = test_output_dir
 )
 
+
+rna_result$qc_metrics_table
+
 # 4. 运行报告生成函数
 print("正在生成报告...")
-GenerateRNAReport(
-  RNA_result = rna_result,
-  doc_file_path = doc_template_path,
-  output_path = test_output_dir
+generate_rna_report(
+  qc_result = rna_result,
+  report_template = doc_template_path,
+  report_dir = test_output_dir
 )
 
-
+exp2qcdt::generate_rna_report()
 ####### 4 samples ######
 
 RNA_sample_fpkm <- system.file("extdata","fpkm.csv",package = "exp2qcdt")
