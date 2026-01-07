@@ -12,9 +12,9 @@ test_exp_file  <- "./test/3_sample_fpkm.csv"
 test_count_file <- "./test/3_sample_count.csv"
 
 # 2. 定义模板和输出路径
-# doc_template_path <- system.file("extdata", "Quartet_temp.docx", package = "exp2qcdt")
-doc_template_path <- './Quartet-RNA-Report_v0.1.docx'
-
+doc_template_path <- system.file("extdata", "quartet_template.docx", package = "exp2qcdt")
+# doc_template_path <- './Quartet-RNA-Report_v0.1.docx'
+doc_template_path
 test_output_dir <- file.path(getwd(), "TEST_OUTPUTS")
 dir.create(test_output_dir, showWarnings = FALSE)
 
