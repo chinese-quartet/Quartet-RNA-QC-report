@@ -89,7 +89,7 @@ generate_rna_report <- function(qc_result,
   text_ref_title <- "参考文献"
   text_ref_1 <- "1. Zheng, Y. et al. Multi-omics data integration using ratio-based quantitative profiling with Quartet reference materials. Nature Biotechnology 1–17 (2023)."
   text_ref_2 <- "2. Yu, Y. et al. Quartet RNA reference materials improve the quality of transcriptomic data through ratio-based profiling. Nature biotechnology 1–15 (2023)."
-  text_ref_3 <- "3. 上海临床队列组学检测工作指引（征求意见稿）, 2026/11/26."
+  text_ref_3 <- "3. 上海临床队列组学检测工作指引（征求意见稿）, 2025/11/26."
   
   # 免责声明
   text_disclaimer_title <- "免责声明"
