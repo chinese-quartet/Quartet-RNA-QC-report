@@ -1,6 +1,6 @@
 Package: exp2qcdt
 Title: Convert expression table to qc datatable for quartet project
-Version: 0.2.5
+Version: 0.2.6
 Authors@R: c(
     person("Jun", "Shang", email = "shangjunv@163.com", role = c("aut", "cre")),
     person("Jingcheng", "Yang", email = "jingcheng.yang@fudan.edu.cn", role = "aut"),
