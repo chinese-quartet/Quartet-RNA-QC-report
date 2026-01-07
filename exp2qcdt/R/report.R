@@ -172,7 +172,7 @@ generate_rna_report <- function(qc_result,
     
     # 3. 插入表格 (The Table)
     body_add_flextable(ft1) %>%
-    body_add_break() %>% # 分页
+    # body_add_break() %>% # 分页
     
     # 4. 质量控制指标说明 (Definitions)
     body_add_par(value = "质量控制指标", style = "heading 2") %>%
@@ -184,9 +184,22 @@ generate_rna_report <- function(qc_result,
     # RC 定义
     body_add_par(value = text_rc_title, style = "heading 3") %>%
     body_add_par(value = text_rc_desc, style = "Normal") %>%
-    body_add_break() %>% # 分页
+    # body_add_break() %>% # 分页
     
-    # 5. 插入图片 (Plots)
+    
+    # 5. 参考文献 (References)
+    body_add_par(value = text_ref_title, style = "heading 2") %>%
+    body_add_par(value = text_ref_1, style = "Normal") %>%
+    body_add_par(value = text_ref_2, style = "Normal") %>%
+    body_add_par(value = text_ref_3, style = "Normal") %>%
+    body_add_par(value = " ", style = "Normal") %>%
+    
+    # 6. 免责声明 (Disclaimer)
+    body_add_par(value = text_disclaimer_title, style = "heading 3") %>% # 通常免责声明用小一点的标题或粗体
+    body_add_par(value = text_disclaimer_content, style = "Normal") %>%
+    body_add_break() %>%
+    
+    # 7. 插入图片 (Plots)
     # 注意：新报告似乎主要关注 SNR 和 Correlation 两个图
     # 请确保 qc_result$snr_plot 和 qc_result$logfc_plot (或 correlation plot) 是存在的
     
@@ -198,19 +211,7 @@ generate_rna_report <- function(qc_result,
     body_add_break() %>%
     body_add_par(value = "Correlation with Reference Datasets", style = "heading 2") %>%
     body_add_gg(value = qc_result$logfc_plot, style = "centered") %>% # [cite: 9]
-    body_add_break() %>%
-    
-    # 6. 参考文献 (References)
-    body_add_par(value = text_ref_title, style = "heading 2") %>%
-    body_add_par(value = text_ref_1, style = "Normal") %>%
-    body_add_par(value = text_ref_2, style = "Normal") %>%
-    body_add_par(value = text_ref_3, style = "Normal") %>%
-    body_add_par(value = " ", style = "Normal") %>%
-    
-    # 7. 免责声明 (Disclaimer)
-    body_add_par(value = text_disclaimer_title, style = "heading 3") %>% # 通常免责声明用小一点的标题或粗体
-    body_add_par(value = text_disclaimer_content, style = "Normal") %>%
-    
+
     # 输出文件
     print(target = output_file)
 }
