@@ -74,7 +74,7 @@ generate_rna_report <- function(qc_result,
   # --- 1. 定义中文文本内容 (基于 ShenKang-Quartet-RNA-Report_v0.1.docx) ---
   
   # 摘要
-  text_sum_intro <- "本报告基于多项组学关键质量控制指标，总结了 Quartet RNA 参考物质所生成数据的质量情况。质量控制流程从用户输入基因表达矩阵开始，分别计算每批次的信噪比（Signal-to-Noise Ratio, SNR）、与参考数据集的相对相关性（Relative Correlation with Reference Datasets, RC）及整体质量判断。"
+  text_sum_intro <- "本报告基于多项组学关键质量控制指标，总结了 Quartet RNA 参考物质所生成数据的质量情况。质量控制流程从用户输入基因表达矩阵开始，分别计算外部质控品的信噪比（Signal-to-Noise Ratio, SNR）、与参考数据集的Pearson相关系数（Pearson correlation coefficient, PCC）及整体质量判断。"
   
   # 定义解释文本
   # 信噪比定义
@@ -82,14 +82,15 @@ generate_rna_report <- function(qc_result,
   text_snr_desc <- "用于表征某一检测平台、实验室或批次区分不同生物样本组之间内在生物学差异（“信号”）与同一样本组技术重复之间变异（“噪声”）的能力。SNR 越高，说明区分生物学差异的能力越强。"
   
   # 相对相关性定义
-  text_rc_title <- "与参考数据集的相对相关性（Relative Correlation with Reference Datasets, RC）"
+  text_rc_title <- "与参考数据集的Pearson相关系数（Pearson correlation coefficient, PCC）"
   text_rc_desc <- "定义为在给定样本对之间，测试数据集中比值型表达水平与对应比值型参考数据集之间的 Pearson 相关系数，用于表征比值表达谱在数值层面的整体一致性趋势。为提高分析可靠性，在进行比值表达分析前，首先对每个样本组的技术重复取均值。差异倍数（fold change）采用 log2 转换。"
   
   # 参考文献
   text_ref_title <- "参考文献"
-  text_ref_1 <- "1. Zheng, Y. et al. Multi-omics data integration using ratio-based quantitative profiling with Quartet reference materials. Nature Biotechnology 1–17 (2023)."
-  text_ref_2 <- "2. Yu, Y. et al. Quartet RNA reference materials improve the quality of transcriptomic data through ratio-based profiling. Nature biotechnology 1–15 (2023)."
-  text_ref_3 <- "3. 上海临床队列组学检测工作指引（征求意见稿）, 2025/11/26."
+  text_ref_1 <- "1. Zheng Y, et al. Multi-omics data integration using ratio-based quantitative profiling with Quartet reference materials. Nature Biotechnology, 2024."
+  text_ref_2 <- "2. Yu, Y. et al. Quartet RNA reference materials improve the quality of transcriptomic data through ratio-based profiling. Nature biotechnology, 2024."
+  text_ref_3 <- "3. GB/T 45214-2025《人全基因组高通量测序数据质量评价方法》"
+  text_ref_4 <- "4. 上海临床队列组学检测工作指引（征求意见稿）, 2025/11/26."
   
   # 免责声明
   text_disclaimer_title <- "免责声明"
@@ -123,15 +124,16 @@ generate_rna_report <- function(qc_result,
   }
   
   # 整体质量判断
-  is_pass <- (!is.na(snr_val) && snr_val >= 10) && (!is.na(rc_val) && rc_val >= 0.80)
+  # is_pass <- (!is.na(snr_val) && snr_val >= 10) && (!is.na(rc_val) && rc_val >= 0.80)
+  is_pass <- (!is.na(snr_val) && snr_val >= 10)
   quality_str <- ifelse(is_pass, "Yes", "No")
   
   # 3. 手动构建符合 DOCX 格式的新数据框
   # 第一行是推荐标准，第二行是实际数据
   new_df <- data.frame(
-    "批次" = c("推荐质量标准", batch_name_str),
+    "样本组" = c("推荐质量标准", batch_name_str),
     "信噪比" = c("≥10", snr_str),
-    "相对相关性" = c("≥0.80", rc_str),
+    "Pearson相关系数" = c("≥0.80", rc_str),
     "整体质量" = c("全部通过", quality_str),
     check.names = FALSE # 防止列名被自动修改
   )
@@ -140,6 +142,7 @@ generate_rna_report <- function(qc_result,
   ft1 <- flextable(new_df) %>%
     # 设置基础边框主题
     theme_box() %>%
+    flextable::font(part = "all", fontname = "Times New Roman") %>%
     # 全局居中
     align(align = "center", part = "all") %>%
     # 调整列宽 (根据 Word 页面宽度适当调整)
@@ -153,7 +156,7 @@ generate_rna_report <- function(qc_result,
     # 动态上色：如果整体质量是 No，标红
     color(i = 2, j = "整体质量", color = ifelse(quality_str == "No", "#B80D0D", "black")) %>%
     # 动态上色：如果数值未达标，也标红 (可选)
-    color(i = 2, j = "相对相关性", color = ifelse(rc_val < 0.80, "#B80D0D", "black"))
+    color(i = 2, j = "Pearson相关系数", color = ifelse(rc_val < 0.80, "#B80D0D", "black"))
   
   # 如果 SNR 也要标红，可以取消下面这行的注释
   # color(i = 2, j = "信噪比", color = ifelse(snr_val < 10, "#B80D0D", "black"))
@@ -192,6 +195,7 @@ generate_rna_report <- function(qc_result,
     body_add_par(value = text_ref_1, style = "Normal") %>%
     body_add_par(value = text_ref_2, style = "Normal") %>%
     body_add_par(value = text_ref_3, style = "Normal") %>%
+    body_add_par(value = text_ref_4, style = "Normal") %>%
     body_add_par(value = " ", style = "Normal") %>%
     
     # 6. 免责声明 (Disclaimer)
@@ -209,7 +213,7 @@ generate_rna_report <- function(qc_result,
     
     # 插入 Correlation 图片
     body_add_break() %>%
-    body_add_par(value = "Correlation with Reference Datasets", style = "heading 2") %>%
+    body_add_par(value = "Pearson Correlation Coefficient", style = "heading 2") %>%
     body_add_gg(value = qc_result$logfc_plot, style = "centered") %>% # [cite: 9]
 
     # 输出文件
