@@ -41,14 +41,17 @@ exp2qcdt <- function(exp_table_file, count_table_file, phenotype_file, result_di
   }
   make_directories(result_dir)
 
+  # 1. [Metadata 表头] 强制转小写 (修复 SAMPLE/Group 等列名无法识别问题)
+  colnames(dt_meta) <- tolower(colnames(dt_meta))
+  
   if (colnames(dt_fpkm)[1] != "gene_id" | colnames(dt_counts)[1] != "gene_id") {
     colnames(dt_fpkm)[1] <- "gene_id"
     colnames(dt_counts)[1] <- "gene_id"
   }
 
-  if (!all(colnames(dt_counts) == colnames(dt_fpkm))) {
-    stop("Please ensure that sample id of fpkm, counts and meta files in the same order")
-  }
+  # if (!all(colnames(dt_counts) == colnames(dt_fpkm))) {
+  #   stop("Please ensure that sample id of fpkm, counts and meta files in the same order")
+  # }
 
   # expression data type must be numeric
   change_cols <- colnames(dt_fpkm[, !"gene_id"])

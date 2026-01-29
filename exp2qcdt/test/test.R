@@ -7,9 +7,10 @@ print("--- 开始测试 ---")
 ###### 2 sample ######
 # 1. 定义您的测试文件路径
 # !! 确保这些路径指向您的 *测试* 数据 (只含 D5, D6, F7)
-test_meta_file <- "./test/3_sample_metadata.csv"
-test_exp_file  <- "./test/3_sample_fpkm.csv"
-test_count_file <- "./test/3_sample_count.csv"
+test_meta_file <- "./test/metadata.csv"
+test_exp_file  <- "./test/fpkm.csv"
+test_count_file <- "./test/counts.csv"
+
 
 # 2. 定义模板和输出路径
 doc_template_path <- system.file("extdata", "quartet_template.docx", package = "exp2qcdt")
@@ -26,7 +27,6 @@ rna_result <- exp2qcdt(
   phenotype_file = test_meta_file,
   result_dir = test_output_dir
 )
-
 
 rna_result$qc_metrics_table
 
