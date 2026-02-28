@@ -181,9 +181,21 @@ make_performance_plot <- function(dt_fpkm, dt_fpkm_log, dt_counts, dt_meta, resu
     })]
     exp_design <- (dt_meta[, .(library, group = sample)] %>% setkey(., library))
     dt_fpkm_f <- dt_fpkm_log[gene_list_snr, on = .(gene_id)]
-    dt_fpkm_zscore <- data.table(t(apply(dt_fpkm_f[, dt_meta$library, with = F], 1, function(x) {
+    
+    # 新增逻辑：提取仅包含表达量的矩阵，计算每行的标准差
+    fpkm_mat <- dt_fpkm_f[, dt_meta$library, with = FALSE]
+    row_sds <- apply(fpkm_mat, 1, sd)
+    
+    # 新增逻辑：仅保留标准差大于 0 的基因
+    dt_fpkm_f_filtered <- dt_fpkm_f[row_sds > 0, ]
+    
+    # 基于过滤后的数据进行 Z-Score 标准化
+    dt_fpkm_zscore <- data.table(t(apply(dt_fpkm_f_filtered[, dt_meta$library, with = FALSE], 1, function(x) {
       (x - mean(x)) / sd(x)
     })))
+    # dt_fpkm_zscore <- data.table(t(apply(dt_fpkm_f[, dt_meta$library, with = F], 1, function(x) {
+    #   (x - mean(x)) / sd(x)
+    # })))
     pca_list <- get_pca_list(dt_fpkm_zscore, exp_design, dt_meta)
     return(pca_list)
   }
