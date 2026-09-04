@@ -7,7 +7,7 @@ The exp2qcdt package aims to convert expression table to qc data table for quart
 ```R
 ## If you do not have devtools, please install first
 library(devtools)
-devtools::install_github("chinese-quartet/Quartet-RNA-QC-report", subdir = "exp2qcdt")
+devtools::install_github("chinese-quartet/quartet-rna-qc-report", subdir = "exp2qcdt")
 ```
 
 ## Usage
